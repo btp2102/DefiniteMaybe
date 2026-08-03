@@ -3,503 +3,98 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Definite Maybe</title>
+<title>Add Your Event — Definite Maybe</title>
 <style>
-  :root { --accent: #d4622a; --bg: #faf7f2; --card-bg: #ffffff; --text: #2a2420; }
-  * { box-sizing: border-box; }
-  body { font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
-  header { text-align: center; padding: 24px 16px 12px; }
-  header h1 { font-size: 2.2em; margin: 0; color: var(--accent); }
-  .intro-text { max-width: 700px; margin: 0 auto 20px; padding: 0 16px; line-height: 1.5; text-align: center; }
-  .widgets { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 1000px; margin: 0 auto; padding: 0 16px; }
-  @media (max-width: 700px) {
-    .widgets { grid-template-columns: 1fr; }
-    header h1 { font-size: 1.8em; }
-    .controls { flex-direction: column; }
-    .tag-dropdown, .submitter-filter { width: 100%; }
-  }
-  .widget-box { background: var(--card-bg); border-radius: 12px; padding: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-  #map { height: 320px; border-radius: 8px; width: 100%; }
-
-  #calendar { height: 320px; display: flex; flex-direction: column; }
-  .cal-header { display: flex; justify-content: space-between; align-items: center; padding: 2px 4px 8px; }
-  .cal-header button { background: none; border: none; font-size: 1.1em; cursor: pointer; color: var(--accent); padding: 4px 10px; }
-  .cal-header span { font-weight: bold; font-size: 0.95em; }
-  .cal-grid { flex: 1; display: grid; grid-template-columns: repeat(7, 1fr); grid-template-rows: auto repeat(6, 1fr); gap: 2px; min-height: 0; }
-  .cal-weekday { text-align: center; font-size: 0.65em; color: #999; padding-bottom: 4px; }
-  .cal-cell { border-radius: 6px; padding: 2px 3px; font-size: 0.7em; cursor: pointer; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
-  .cal-cell.empty { cursor: default; }
-  .cal-cell.has-events { background: #fdeee4; }
-  .cal-cell.selected { outline: 2px solid var(--accent); }
-  .cal-cell:hover.has-events { background: #fbdcc4; }
-  .cal-daynum { font-weight: bold; font-size: 0.85em; }
-  .cal-dot-row { display: flex; gap: 2px; margin-top: 2px; flex-wrap: wrap; }
-  .cal-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
-  .cal-day-detail { margin-top: 8px; padding: 8px; background: #fdeee4; border-radius: 8px; font-size: 0.8em; max-height: 80px; overflow-y: auto; display: none; }
-  .cal-day-detail.visible { display: block; }
-  .cal-day-detail-item { cursor: pointer; padding: 3px 0; text-decoration: underline; }
-
-  .controls { max-width: 1000px; margin: 20px auto; padding: 0 16px; display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
-  .date-control { flex: 1.4; min-width: 260px; }
-  .date-control label { font-size: 0.85em; color: #777; display: block; margin-bottom: 6px; }
-  .dual-slider { position: relative; height: 28px; }
-  .slider-base-track { position: absolute; top: 50%; left: 0; right: 0; height: 4px; background: #e0d8cf; border-radius: 2px; transform: translateY(-50%); }
-  .slider-fill-track { position: absolute; top: 50%; height: 4px; background: var(--accent); border-radius: 2px; transform: translateY(-50%); }
-  .dual-slider input[type=range] { position: absolute; width: 100%; top: 0; height: 28px; margin: 0; pointer-events: none; -webkit-appearance: none; background: transparent; }
-  .dual-slider input[type=range]::-webkit-slider-thumb { pointer-events: auto; -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3); margin-top: 4px; }
-  .dual-slider input[type=range]::-moz-range-thumb { pointer-events: auto; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
-  .date-inputs { display: flex; gap: 10px; margin-top: 10px; }
-  .date-inputs input[type=date] { flex: 1; padding: 8px; border-radius: 6px; border: 1px solid #ccc; min-width: 0; }
-
-  .submitter-filter { flex: 1; min-width: 220px; }
-  .submitter-filter label { font-size: 0.85em; color: #777; display: block; margin-bottom: 4px; }
-  .submitter-filter .hint { font-size: 0.78em; color: #999; margin-bottom: 6px; line-height: 1.4; }
-  .submitter-filter input { width: 100%; padding: 9px 10px; border-radius: 8px; border: 1px solid #ccc; }
-  .submitter-filter .status { font-size: 0.78em; color: var(--accent); margin-top: 4px; min-height: 1em; }
-
-  .tag-dropdown { position: relative; min-width: 200px; flex: 1; }
-  .tag-dropdown-btn { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #ccc; background: white; cursor: pointer; text-align: left; }
-  .tag-dropdown-panel { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; margin-top: 4px; padding: 10px; z-index: 20; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-height: 260px; overflow-y: auto; }
-  .tag-dropdown-panel label { display: block; padding: 6px 0; font-size: 0.9em; cursor: pointer; }
-  .tag-dropdown-panel hr { margin: 6px 0; border: none; border-top: 1px solid #eee; }
-
-  .list-intro-text { max-width: 700px; margin: 28px auto 12px; padding: 0 16px; text-align: center; line-height: 1.5; }
-  .add-event-btn { display: block; margin: 0 auto 24px; background: var(--accent); color: white; border: none; padding: 14px 24px; border-radius: 24px; font-size: 1em; cursor: pointer; text-decoration: none; width: fit-content; }
-  #eventList { max-width: 800px; margin: 0 auto; padding: 0 16px 60px; }
-  .event-card { background: var(--card-bg); border-radius: 10px; padding: 16px; margin-bottom: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); scroll-margin-top: 20px; }
-  .event-card h3 { margin: 0 0 4px; }
-  .event-meta { color: #777; font-size: 0.9em; margin-bottom: 8px; }
-  .tag-chip { display: inline-block; background: #fdeee4; color: var(--accent); padding: 2px 10px; border-radius: 12px; font-size: 0.8em; margin-right: 6px; }
-  .source-tag { font-size: 0.75em; color: #999; margin-top: 8px; }
-  .vote-row { margin-top: 10px; display: flex; gap: 12px; align-items: center; }
-  .vote-btn { background: none; border: 1px solid #ddd; border-radius: 6px; padding: 6px 12px; cursor: pointer; }
-
-  .map-popup-title { font-weight: bold; margin-bottom: 4px; }
-  .map-popup-tags { margin: 6px 0; }
-  .map-popup-link { color: var(--accent); font-size: 0.85em; cursor: pointer; text-decoration: underline; }
+  body { font-family: -apple-system, Arial, sans-serif; background: #faf7f2; margin: 0; padding: 24px 16px; }
+  .form-wrap { max-width: 500px; margin: 0 auto; background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  h1 { text-align: center; color: #d4622a; font-size: 1.6em; }
+  label { display: block; margin-top: 14px; font-size: 0.9em; color: #555; }
+  input, textarea { width: 100%; padding: 10px; margin-top: 4px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit; font-size: 1em; }
+  button { margin-top: 20px; width: 100%; background: #d4622a; color: white; border: none; padding: 14px; border-radius: 24px; font-size: 1em; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  button:disabled { opacity: 0.75; cursor: not-allowed; }
+  .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
+  button.loading .spinner { display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .back-link { display: block; text-align: center; margin-top: 16px; color: #888; }
+  #successMsg { text-align: center; color: green; margin-top: 16px; display: none; }
+  .hint { font-size: 0.8em; color: #999; margin-top: 2px; }
 </style>
 </head>
 <body>
+<div class="form-wrap">
+  <h1>Add Your Event</h1>
+  <form id="eventForm">
+    <label>Event Name *</label>
+    <input type="text" name="title" required>
 
-<header><h1 id="siteTitle">Definite Maybe</h1></header>
-<div class="intro-text" id="introText">Loading...</div>
+    <label>Date *</label>
+    <input type="date" name="date" required>
 
-<div class="widgets">
-  <div class="widget-box">
-    <div id="calendar">
-      <div class="cal-header">
-        <button id="calPrev">‹</button>
-        <span id="calMonthLabel"></span>
-        <button id="calNext">›</button>
-      </div>
-      <div class="cal-grid" id="calGrid"></div>
-      <div class="cal-day-detail" id="calDayDetail"></div>
-    </div>
-  </div>
-  <div class="widget-box"><div id="map"></div></div>
+    <label>Start Time *</label>
+    <input type="time" name="startTime" required>
+
+    <label>End Time</label>
+    <input type="time" name="endTime">
+
+    <label>Description *</label>
+    <textarea name="description" rows="3" required></textarea>
+
+    <label>Cost *</label>
+    <input type="text" name="price" placeholder="$free, $20, etc." required>
+
+    <label>Address *</label>
+    <input type="text" name="address" placeholder="Street address, NYC" required>
+    <div class="hint">We'll figure out the borough and map location from this.</div>
+
+    <label>Venue Name (optional)</label>
+    <input type="text" name="venue" placeholder="e.g. Nowadays, Joe's Pub">
+
+    <label>More Info / Ticket Link</label>
+    <input type="url" name="sourceLink" placeholder="https://...">
+
+    <label>Your Name *</label>
+    <input type="text" name="submittedBy" required>
+
+    <label>Your Email *</label>
+    <input type="email" name="submitterEmail" required>
+
+    <button type="submit" id="submitBtn">
+      <span class="spinner"></span>
+      <span id="submitBtnText">Submit Event</span>
+    </button>
+  </form>
+  <div id="successMsg">Thanks! Your event has been submitted and will appear shortly.</div>
+  <a class="back-link" href="index.html">← Back to calendar</a>
 </div>
-
-<div class="controls">
-  <div class="date-control">
-    <label>Date range</label>
-    <div class="dual-slider">
-      <div class="slider-base-track"></div>
-      <div class="slider-fill-track" id="sliderFill"></div>
-      <input type="range" id="startSlider">
-      <input type="range" id="endSlider">
-    </div>
-    <div class="date-inputs">
-      <input type="date" id="startDateInput">
-      <input type="date" id="endDateInput">
-    </div>
-  </div>
-
-  <div class="submitter-filter">
-    <label>My events</label>
-    <div class="hint" id="submitterHint"></div>
-    <input type="email" id="submitterInput" placeholder="you@example.com">
-    <div class="status" id="submitterStatus"></div>
-  </div>
-
-  <div class="tag-dropdown">
-    <label style="font-size:0.85em; color:#777; display:block; margin-bottom:4px;">Tags</label>
-    <button type="button" class="tag-dropdown-btn" id="tagDropdownBtn">All tags ▾</button>
-    <div class="tag-dropdown-panel" id="tagDropdownPanel" style="display:none;">
-      <label><input type="checkbox" id="tagSelectAll" checked> Select All</label>
-      <hr>
-      <div id="tagCheckboxList"></div>
-    </div>
-  </div>
-</div>
-
-<div class="list-intro-text" id="listIntroText"></div>
-<a class="add-event-btn" href="submit.html">+ Add Your Event</a>
-<div id="eventList">Loading events...</div>
 
 <script>
 const API_BASE = 'https://script.google.com/macros/s/AKfycbzxAcDnWOGeSvekDVOpi8lCOcp5mWD44O9ibQo-sifvJtQrVo6MIW-DEvwev5mKk4Uh/exec';
 
-let allEvents = [];
-let map, markers = [], sharedInfoWindow;
-let allTags = [];
-let minDateStr, maxDateStr;
-let calViewYear, calViewMonth, calSelectedDate = null;
-let submitterFilterIds = null;
-let submitterDebounce = null;
+document.getElementById('eventForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const params = Object.fromEntries(new FormData(e.target).entries());
 
-const WEEKDAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-
-function jsonp(url, callback) {
-  const cbName = 'jsonp_cb_' + Math.random().toString(36).slice(2);
-  window[cbName] = function(data) {
-    callback(data);
-    delete window[cbName];
-    script.remove();
-  };
-  const script = document.createElement('script');
-  script.src = url + '&callback=' + cbName;
-  document.body.appendChild(script);
-}
-
-function simpleMarkdown(text) {
-  if (!text) return '';
-  return text
-    .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
-    .replace(/\*(.+?)\*/g, '<i>$1</i>')
-    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank">$1</a>')
-    .replace(/\n/g, '<br>');
-}
-
-function formatDateDisplay(dateStr) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr + 'T00:00:00');
-  return WEEKDAY_NAMES[d.getDay()] + ', ' + MONTH_NAMES[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
-}
-
-// --- Config ---
-jsonp(API_BASE + '?api=config', function(cfg) {
-  if (cfg && cfg.error) {
-    document.getElementById('introText').innerHTML = '<span style="color:red;">Config error: ' + cfg.message + '</span>';
-    return;
-  }
-  if (cfg.SiteTitle) document.getElementById('siteTitle').textContent = cfg.SiteTitle;
-  document.getElementById('introText').innerHTML = cfg.IntroText ? simpleMarkdown(cfg.IntroText) : '';
-  document.getElementById('listIntroText').innerHTML = simpleMarkdown(cfg.ListIntroText || '');
-  document.getElementById('submitterHint').innerHTML = simpleMarkdown(cfg.SubmitterFilter || 'Enter your email to see only what you submitted or forwarded.');
-});
-
-// --- Map ---
-function initGoogleMap() {
-  const nycBounds = { north: 41.3, south: 40.45, west: -74.35, east: -73.4 };
-  map = new google.maps.Map(document.getElementById('map'), {
-    center: { lat: 40.7128, lng: -74.0060 },
-    zoom: 11,
-    minZoom: 9,
-    restriction: { latLngBounds: nycBounds, strictBounds: false },
-    mapTypeControl: false,
-    streetViewControl: false
-  });
-  sharedInfoWindow = new google.maps.InfoWindow();
-  renderAll();
-}
-function loadMapsScript(apiKey) {
-  if (!apiKey) { document.getElementById('map').innerHTML = '<p style="padding:20px;color:#999;">Map unavailable — no API key configured.</p>'; return; }
-  const script = document.createElement('script');
-  script.src = 'https://maps.googleapis.com/maps/api/js?key=' + apiKey + '&callback=initGoogleMap';
-  document.head.appendChild(script);
-}
-jsonp(API_BASE + '?api=mapsKey', function(key) { loadMapsScript(key); });
-
-// --- Tags ---
-jsonp(API_BASE + '?api=tags', function(tags) {
-  allTags = tags;
-  const list = document.getElementById('tagCheckboxList');
-  list.innerHTML = tags.map(t =>
-    `<label><input type="checkbox" class="tag-cb" value="${t}" checked> ${t}</label>`
-  ).join('');
-  document.querySelectorAll('.tag-cb').forEach(cb => cb.addEventListener('change', onTagCheckboxChange));
-  document.getElementById('tagSelectAll').addEventListener('change', function() {
-    document.querySelectorAll('.tag-cb').forEach(cb => cb.checked = this.checked);
-    onTagCheckboxChange();
-  });
-  updateTagButtonLabel();
-});
-
-function onTagCheckboxChange() {
-  const boxes = document.querySelectorAll('.tag-cb');
-  const checkedCount = Array.from(boxes).filter(cb => cb.checked).length;
-  document.getElementById('tagSelectAll').checked = checkedCount === boxes.length;
-  updateTagButtonLabel();
-  renderAll();
-}
-function updateTagButtonLabel() {
-  const boxes = Array.from(document.querySelectorAll('.tag-cb'));
-  const checked = boxes.filter(cb => cb.checked);
-  const btn = document.getElementById('tagDropdownBtn');
-  if (checked.length === boxes.length) btn.textContent = 'All tags ▾';
-  else if (checked.length === 0) btn.textContent = 'No tags selected ▾';
-  else btn.textContent = checked.length + ' tag' + (checked.length > 1 ? 's' : '') + ' selected ▾';
-}
-document.getElementById('tagDropdownBtn').addEventListener('click', function(e) {
-  e.stopPropagation();
-  const panel = document.getElementById('tagDropdownPanel');
-  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-});
-document.addEventListener('click', function(e) {
-  const dropdown = document.querySelector('.tag-dropdown');
-  if (!dropdown.contains(e.target)) document.getElementById('tagDropdownPanel').style.display = 'none';
-});
-function getSelectedTags() {
-  return Array.from(document.querySelectorAll('.tag-cb')).filter(cb => cb.checked).map(cb => cb.value);
-}
-
-// --- Submitter filter ---
-document.getElementById('submitterInput').addEventListener('input', function() {
-  const val = this.value.trim();
-  clearTimeout(submitterDebounce);
-  const statusEl = document.getElementById('submitterStatus');
-  if (!val) { submitterFilterIds = null; statusEl.textContent = ''; renderAll(); return; }
-  statusEl.textContent = 'Searching…';
-  submitterDebounce = setTimeout(function() {
-    jsonp(API_BASE + '?api=bySubmitter&email=' + encodeURIComponent(val), function(ids) {
-      if (ids && ids.error) { statusEl.textContent = 'Error: ' + ids.message; return; }
-      submitterFilterIds = ids;
-      statusEl.textContent = ids.length > 0 ? 'Showing ' + ids.length + ' event' + (ids.length > 1 ? 's' : '') : 'No events found for that email.';
-      renderAll();
-    });
-  }, 400);
-});
-
-// --- Events ---
-jsonp(API_BASE + '?api=events', function(events) {
-  if (events && events.error) {
-    document.getElementById('eventList').innerHTML = '<p style="color:red;">Server error: ' + events.message + '</p>';
-    return;
-  }
-  allEvents = events;
-  setupDateRange();
-  setupCalendar();
-  renderAll();
-});
-
-// --- Date range ---
-function setupDateRange() {
-  const dates = allEvents.map(ev => ev.date).filter(Boolean).sort();
-  if (dates.length === 0) return;
-
-  const today = new Date();
-  today.setHours(0,0,0,0);
-  const todayStr = today.toISOString().slice(0, 10);
-
-  minDateStr = dates[0] < todayStr ? dates[0] : todayStr;
-  maxDateStr = dates[dates.length - 1] > todayStr ? dates[dates.length - 1] : todayStr;
-  const totalDays = dateDiff_(minDateStr, maxDateStr) || 1;
-
-  const defaultStartStr = todayStr > minDateStr ? todayStr : minDateStr;
-  const defaultStartOffset = dateDiff_(minDateStr, defaultStartStr);
-
-  const startSlider = document.getElementById('startSlider');
-  const endSlider = document.getElementById('endSlider');
-  const startInput = document.getElementById('startDateInput');
-  const endInput = document.getElementById('endDateInput');
-
-  [startSlider, endSlider].forEach(s => { s.min = 0; s.max = totalDays; });
-  startSlider.value = defaultStartOffset;
-  endSlider.value = totalDays;
-  startInput.min = endInput.min = minDateStr;
-  startInput.max = endInput.max = maxDateStr;
-  startInput.value = defaultStartStr;
-  endInput.value = maxDateStr;
-  updateSliderFill();
-
-  startSlider.addEventListener('input', function() {
-    if (parseInt(startSlider.value) > parseInt(endSlider.value)) startSlider.value = endSlider.value;
-    startInput.value = offsetToDate_(startSlider.value);
-    updateSliderFill(); renderAll();
-  });
-  endSlider.addEventListener('input', function() {
-    if (parseInt(endSlider.value) < parseInt(startSlider.value)) endSlider.value = startSlider.value;
-    endInput.value = offsetToDate_(endSlider.value);
-    updateSliderFill(); renderAll();
-  });
-  startInput.addEventListener('change', function() {
-    startSlider.value = dateToOffset_(startInput.value);
-    if (parseInt(startSlider.value) > parseInt(endSlider.value)) { endSlider.value = startSlider.value; endInput.value = startInput.value; }
-    updateSliderFill(); renderAll();
-  });
-  endInput.addEventListener('change', function() {
-    endSlider.value = dateToOffset_(endInput.value);
-    if (parseInt(endSlider.value) < parseInt(startSlider.value)) { startSlider.value = endSlider.value; startInput.value = endInput.value; }
-    updateSliderFill(); renderAll();
-  });
-}
-function updateSliderFill() {
-  const startSlider = document.getElementById('startSlider');
-  const endSlider = document.getElementById('endSlider');
-  const max = parseFloat(startSlider.max) || 1;
-  const startPct = (parseFloat(startSlider.value) / max) * 100;
-  const endPct = (parseFloat(endSlider.value) / max) * 100;
-  const fill = document.getElementById('sliderFill');
-  fill.style.left = startPct + '%';
-  fill.style.width = (endPct - startPct) + '%';
-}
-function dateDiff_(a, b) { return Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000); }
-function offsetToDate_(offset) {
-  const d = new Date(minDateStr + 'T00:00:00');
-  d.setDate(d.getDate() + parseInt(offset, 10));
-  return d.toISOString().slice(0, 10);
-}
-function dateToOffset_(dateStr) { return dateDiff_(minDateStr, dateStr); }
-
-// --- Calendar ---
-function setupCalendar() {
-  const today = new Date();
-  calViewYear = today.getFullYear();
-  calViewMonth = today.getMonth();
-  renderCalendar();
-
-  document.getElementById('calPrev').addEventListener('click', function() {
-    calViewMonth--;
-    if (calViewMonth < 0) { calViewMonth = 11; calViewYear--; }
-    renderCalendar();
-  });
-  document.getElementById('calNext').addEventListener('click', function() {
-    calViewMonth++;
-    if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
-    renderCalendar();
-  });
-}
-
-function renderCalendar() {
-  document.getElementById('calMonthLabel').textContent = MONTH_NAMES[calViewMonth] + ' ' + calViewYear;
-  const grid = document.getElementById('calGrid');
-
-  const visible = getFilteredEvents();
-  const byDate = {};
-  visible.forEach(ev => { if (!byDate[ev.date]) byDate[ev.date] = []; byDate[ev.date].push(ev); });
-
-  const firstOfMonth = new Date(calViewYear, calViewMonth, 1);
-  const startWeekday = firstOfMonth.getDay();
-  const daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
-
-  let html = WEEKDAY_NAMES.map(w => `<div class="cal-weekday">${w.slice(0,1)}</div>`).join('');
-  for (let i = 0; i < startWeekday; i++) html += `<div class="cal-cell empty"></div>`;
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const dateStr = calViewYear + '-' + String(calViewMonth + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
-    const dayEvents = byDate[dateStr] || [];
-    const hasEvents = dayEvents.length > 0;
-    const isSelected = dateStr === calSelectedDate;
-    const dots = dayEvents.slice(0, 4).map(() => `<div class="cal-dot"></div>`).join('');
-    html += `<div class="cal-cell ${hasEvents ? 'has-events' : ''} ${isSelected ? 'selected' : ''}" data-date="${dateStr}">
-      <div class="cal-daynum">${day}</div>
-      <div class="cal-dot-row">${dots}</div>
-    </div>`;
-  }
-
-  grid.innerHTML = html;
-  grid.querySelectorAll('.cal-cell.has-events').forEach(cell => {
-    cell.addEventListener('click', function() { onCalendarDayClick(cell.dataset.date, byDate[cell.dataset.date]); });
-  });
-}
-
-function onCalendarDayClick(dateStr, events) {
-  calSelectedDate = dateStr;
-  renderCalendar();
-  const detail = document.getElementById('calDayDetail');
-  detail.classList.add('visible');
-  detail.innerHTML = '<b>' + formatDateDisplay(dateStr) + '</b><br>' +
-    events.map(ev => `<div class="cal-day-detail-item" onclick="scrollToEvent('${ev.id}')">${ev.title}${ev.venue ? ' — ' + ev.venue : ''}</div>`).join('');
-}
-
-// --- Filtering / rendering ---
-function getFilteredEvents() {
-  const startInput = document.getElementById('startDateInput');
-  const endInput = document.getElementById('endDateInput');
-  const selectedTags = getSelectedTags();
-  const allChecked = selectedTags.length === allTags.length;
-
-  return allEvents.filter(ev => {
-    if (startInput.value && endInput.value) {
-      if (ev.date < startInput.value || ev.date > endInput.value) return false;
-    }
-    if (!allChecked && !ev.tags.some(t => selectedTags.includes(t))) return false;
-    if (submitterFilterIds !== null && !submitterFilterIds.includes(ev.id)) return false;
-    return true;
-  }).sort((a, b) => (a.date + a.startTime).localeCompare(b.date + b.startTime));
-}
-
-function renderMap(events) {
-  if (!map) return;
-  markers.forEach(m => m.setMap(null));
-  markers = [];
-  events.forEach(ev => {
-    if (!ev.lat || !ev.lng) return;
-    const marker = new google.maps.Marker({ position: { lat: parseFloat(ev.lat), lng: parseFloat(ev.lng) }, map: map, title: ev.title });
-    marker.addListener('click', function() {
-      const tagsHtml = ev.tags.map(t => `<span class="tag-chip">${t}</span>`).join('');
-      const content = `
-        <div style="max-width:220px;">
-          <div class="map-popup-title">${ev.title}</div>
-          <div style="font-size:0.85em; color:#777;">${formatDateDisplay(ev.date)}${ev.timeDisplay ? ' · ' + ev.timeDisplay : ''}</div>
-          <div class="map-popup-tags">${tagsHtml}</div>
-          <div class="map-popup-link" onclick="scrollToEvent('${ev.id}')">See full details ↓</div>
-        </div>`;
-      sharedInfoWindow.setContent(content);
-      sharedInfoWindow.open(map, marker);
-    });
-    markers.push(marker);
-  });
-}
-
-function scrollToEvent(eventId) {
-  sharedInfoWindow && sharedInfoWindow.close();
-  const el = document.getElementById('event-' + eventId);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-function vote(eventId, direction, btn) {
+  const btn = document.getElementById('submitBtn');
+  const btnText = document.getElementById('submitBtnText');
   btn.disabled = true;
+  btn.classList.add('loading');
+  btnText.textContent = 'Submitting…';
+
   fetch(API_BASE, {
     method: 'POST',
     mode: 'no-cors',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ api: 'vote', eventId: eventId, direction: direction })
+    body: JSON.stringify({ api: 'submitEvent', params: params })
   }).then(function() {
-    // optimistic update — no-cors means we can't read the real response
-    const ev = allEvents.find(e => e.id === eventId);
-    if (ev) { if (direction === 'up') ev.upvotes++; else ev.downvotes++; }
-    renderAll();
+    document.getElementById('eventForm').style.display = 'none';
+    document.getElementById('successMsg').style.display = 'block';
+  }).catch(function() {
+    btn.disabled = false;
+    btn.classList.remove('loading');
+    btnText.textContent = 'Submit Event';
+    alert('Something went wrong — please try again.');
   });
-}
-
-function renderList(events) {
-  const el = document.getElementById('eventList');
-  if (events.length === 0) { el.innerHTML = '<p style="text-align:center; color:#999;">No events match your filters.</p>'; return; }
-  el.innerHTML = events.map(ev => `
-    <div class="event-card" id="event-${ev.id}">
-      <h3>${ev.title}</h3>
-      <div class="event-meta">${formatDateDisplay(ev.date)} · ${ev.timeDisplay || ''} · ${ev.venue || ev.address || ''}${ev.borough ? ', ' + ev.borough : ''}</div>
-      <div>${ev.description || ''}</div>
-      ${ev.price ? `<div style="margin-top:6px;"><b>Price:</b> ${ev.price}</div>` : ''}
-      <div>${ev.tags.map(t => `<span class="tag-chip">${t}</span>`).join('')}</div>
-      ${ev.sourceLink ? `<div><a href="${ev.sourceLink}" target="_blank">More info / tickets →</a></div>` : ''}
-      <div class="source-tag">via ${ev.uploadMethod}${ev.sourceName ? ' — ' + ev.sourceName : ''}</div>
-      <div class="vote-row">
-        <button class="vote-btn" onclick="vote('${ev.id}','up',this)">👍 ${ev.upvotes}</button>
-        <button class="vote-btn" onclick="vote('${ev.id}','down',this)">👎 ${ev.downvotes}</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-function renderAll() {
-  const filtered = getFilteredEvents();
-  renderList(filtered);
-  renderMap(filtered);
-  if (typeof calViewYear !== 'undefined') renderCalendar();
-}
+});
 </script>
 </body>
 </html>

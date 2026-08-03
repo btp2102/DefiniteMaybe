@@ -24,7 +24,7 @@
 <div id="eventList">Loading events...</div>
 
 <script>
-const API_BASE = 'YOUR_EXEC_URL_HERE';
+const API_BASE = 'https://script.google.com/macros/s/AKfycbzxAcDnWOGeSvekDVOpi8lCOcp5mWD44O9ibQo-sifvJtQrVo6MIW-DEvwev5mKk4Uh/exec';
 
 fetch(API_BASE + '?api=config').then(r => r.json()).then(cfg => {
   document.getElementById('introText').textContent = cfg.IntroText || '';

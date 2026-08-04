@@ -151,15 +151,9 @@ const WEEKDAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Frida
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
 function jsonp(url, callback) {
-  const cbName = 'jsonp_cb_' + Math.random().toString(36).slice(2);
-  window[cbName] = function(data) {
-    callback(data);
-    delete window[cbName];
-    script.remove();
-  };
-  const script = document.createElement('script');
-  script.src = url + '&callback=' + cbName;
-  document.body.appendChild(script);
+  fetch(url).then(r => r.json()).then(callback).catch(function(err) {
+    console.error('Fetch failed:', err);
+  });
 }
 
 function simpleMarkdown(text) {

@@ -52,6 +52,15 @@
   .date-inputs input[type=date] { flex: 1; padding: 8px; border-radius: 6px; border: 1px solid #ccc; min-width: 0; }
 
   .controls-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+  .controls-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+
+.travel-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.travel-row input[type=text] { flex: 2; min-width: 220px; padding: 9px 10px; border-radius: 8px; border: 1px solid #ccc; }
+.travel-row select { padding: 9px 10px; border-radius: 8px; border: 1px solid #ccc; }
+.travel-row input[type=number] { width: 110px; padding: 9px 10px; border-radius: 8px; border: 1px solid #ccc; }
+.travel-row button { padding: 9px 16px; border-radius: 8px; border: none; background: var(--accent); color: white; cursor: pointer; }
+.travel-row #travelClearBtn { background: #999; }
+.travel-status { font-size: 0.8em; color: var(--accent); margin-top: 6px; min-height: 1em; }
 
   .search-bar { flex: 1.3; min-width: 200px; }
   .search-bar label { font-size: 0.85em; color: #777; display: block; margin-bottom: 4px; }
@@ -162,7 +171,23 @@
     </div>
   </div>
 </div>
-
+<div class="controls-outer">
+  <label style="font-size:0.85em; color:#777; display:block; margin-bottom:6px;">Travel time</label>
+  <div class="travel-row">
+    <input type="text" id="travelOriginInput" placeholder="Enter address, subway stop, or landmark...">
+    <select id="travelModeSelect">
+      <option value="TRANSIT">Transit</option>
+      <option value="WALKING">Walking</option>
+      <option value="BICYCLING">Biking</option>
+      <option value="DRIVING">Driving</option>
+    </select>
+    <input type="number" id="travelMinutesInput" placeholder="Max minutes" min="1" value="30">
+    <button id="travelApplyBtn">Apply</button>
+    <button id="travelClearBtn" style="display:none;">Clear</button>
+  </div>
+  <div class="travel-status" id="travelStatus"></div>
+</div>
+  
 <div class="list-intro-text" id="listIntroText"></div>
 <a class="add-event-btn" href="submit.html">+ Add Your Event</a>
 <div id="eventList">Loading events...</div>
@@ -229,14 +254,92 @@ function initGoogleMap() {
     streetViewControl: false
   });
   sharedInfoWindow = new google.maps.InfoWindow();
+  initTravelAutocomplete();
   renderAll();
 }
 function loadMapsScript(apiKey) {
   if (!apiKey) { document.getElementById('map').innerHTML = '<p style="padding:20px;color:#999;">Map unavailable — no API key configured.</p>'; return; }
   const script = document.createElement('script');
-  script.src = 'https://maps.googleapis.com/maps/api/js?key=' + apiKey + '&callback=initGoogleMap';
+  script.src = 'https://maps.googleapis.com/maps/api/js?key=' + apiKey + '&libraries=places&callback=initGoogleMap';
   document.head.appendChild(script);
 }
+let travelOriginPlace = null;
+let travelTimesById = {}; // eventId -> minutes, for the current origin+mode
+let travelFilterActive = false;
+
+function initTravelAutocomplete() {
+  const input = document.getElementById('travelOriginInput');
+  const autocomplete = new google.maps.places.Autocomplete(input, {
+    fields: ['geometry', 'name'],
+    // Bias results toward the service area without hard-restricting, so a Philly landmark still works
+    bounds: new google.maps.LatLngBounds({ lat: 39.6, lng: -76.0 }, { lat: 42.7, lng: -71.5 })
+  });
+  autocomplete.addListener('place_changed', function() {
+    const place = autocomplete.getPlace();
+    if (place && place.geometry) travelOriginPlace = place.geometry.location;
+  });
+}
+
+document.getElementById('travelApplyBtn').addEventListener('click', function() {
+  const statusEl = document.getElementById('travelStatus');
+  if (!travelOriginPlace) {
+    statusEl.textContent = 'Please select a location from the dropdown suggestions.';
+    return;
+  }
+  const maxMinutes = parseFloat(document.getElementById('travelMinutesInput').value) || 30;
+  const mode = document.getElementById('travelModeSelect').value;
+
+  statusEl.textContent = 'Calculating travel times…';
+  travelTimesById = {};
+
+  const eventsWithCoords = allEvents.filter(ev => ev.lat && ev.lng);
+  const service = new google.maps.DistanceMatrixService();
+  const CHUNK_SIZE = 25; // Distance Matrix API limit per request
+  let chunksRemaining = Math.ceil(eventsWithCoords.length / CHUNK_SIZE);
+  if (chunksRemaining === 0) { statusEl.textContent = 'No mapped events to check.'; return; }
+
+  for (let i = 0; i < eventsWithCoords.length; i += CHUNK_SIZE) {
+    const chunk = eventsWithCoords.slice(i, i + CHUNK_SIZE);
+    const destinations = chunk.map(ev => new google.maps.LatLng(parseFloat(ev.lat), parseFloat(ev.lng)));
+
+    const request = {
+      origins: [travelOriginPlace],
+      destinations: destinations,
+      travelMode: google.maps.TravelMode[mode],
+      unitSystem: google.maps.UnitSystem.IMPERIAL
+    };
+    if (mode === 'TRANSIT') {
+      request.transitOptions = { modes: ['BUS', 'RAIL', 'SUBWAY', 'TRAIN', 'TRAM'] };
+    }
+
+    service.getDistanceMatrix(request, function(response, status) {
+      chunksRemaining--;
+      if (status === 'OK' && response.rows[0]) {
+        response.rows[0].elements.forEach(function(el, idx) {
+          if (el.status === 'OK') {
+            travelTimesById[chunk[idx].id] = el.duration.value / 60; // seconds -> minutes
+          }
+        });
+      }
+      if (chunksRemaining === 0) {
+        travelFilterActive = true;
+        document.getElementById('travelClearBtn').style.display = 'inline-block';
+        const matchCount = Object.values(travelTimesById).filter(m => m <= maxMinutes).length;
+        statusEl.textContent = matchCount + ' event' + (matchCount === 1 ? '' : 's') + ' within ' + maxMinutes + ' min.';
+        renderAll();
+      }
+    });
+  }
+});
+
+document.getElementById('travelClearBtn').addEventListener('click', function() {
+  travelFilterActive = false;
+  travelTimesById = {};
+  document.getElementById('travelStatus').textContent = '';
+  document.getElementById('travelOriginInput').value = '';
+  document.getElementById('travelClearBtn').style.display = 'none';
+  renderAll();
+});
 jsonp(API_BASE + '?api=mapsKey', function(key) { loadMapsScript(key); });
 
 // --- Tags ---
@@ -547,6 +650,11 @@ function getFilteredEvents() {
     if (!allSourcesChecked && !selectedSources.includes(ev.sourceName)) return false;
     if (submitterFilterIds !== null && !submitterFilterIds.includes(ev.id)) return false;
     if (!matchesSearch(ev, query)) return false;
+    if (travelFilterActive) {
+      const maxMinutes = parseFloat(document.getElementById('travelMinutesInput').value) || 30;
+      const t = travelTimesById[ev.id];
+      if (t === undefined || t > maxMinutes) return false;
+    }
     return true;
   }).sort((a, b) => (a.date + a.startTime).localeCompare(b.date + b.startTime));
 }

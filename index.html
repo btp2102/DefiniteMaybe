@@ -15,13 +15,13 @@
   @media (max-width: 700px) {
     .widgets { grid-template-columns: 1fr; }
     header h1 { font-size: 1.8em; }
-    .controls { flex-direction: column; }
-    .tag-dropdown, .submitter-filter { width: 100%; }
+    .controls-row { flex-direction: column; }
+    .tag-dropdown, .source-dropdown, .submitter-filter, .search-bar { width: 100%; }
   }
   .widget-box { background: var(--card-bg); border-radius: 12px; padding: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); display: flex; flex-direction: column; }
   #map { height: 400px; border-radius: 8px; width: 100%; }
 
- #calendar { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+  #calendar { flex: 1; display: flex; flex-direction: column; min-height: 0; }
   .cal-header { display: flex; justify-content: space-between; align-items: center; padding: 2px 4px 8px; }
   .cal-header button { background: none; border: none; font-size: 1.1em; cursor: pointer; color: var(--accent); padding: 4px 10px; }
   .cal-header span { font-weight: bold; font-size: 0.95em; }
@@ -39,8 +39,8 @@
   .cal-day-detail.visible { display: block; }
   .cal-day-detail-item { cursor: pointer; padding: 3px 0; text-decoration: underline; }
 
-  .controls { max-width: 1000px; margin: 20px auto; padding: 0 16px; display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
-  .date-control { flex: 1.4; min-width: 260px; }
+  .controls-outer { max-width: 1000px; margin: 20px auto; padding: 0 16px; }
+  .date-control { margin-bottom: 16px; }
   .date-control label { font-size: 0.85em; color: #777; display: block; margin-bottom: 6px; }
   .dual-slider { position: relative; height: 28px; }
   .slider-base-track { position: absolute; top: 50%; left: 0; right: 0; height: 4px; background: #e0d8cf; border-radius: 2px; transform: translateY(-50%); }
@@ -48,20 +48,27 @@
   .dual-slider input[type=range] { position: absolute; width: 100%; top: 0; height: 28px; margin: 0; pointer-events: none; -webkit-appearance: none; background: transparent; }
   .dual-slider input[type=range]::-webkit-slider-thumb { pointer-events: auto; -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3); margin-top: 4px; }
   .dual-slider input[type=range]::-moz-range-thumb { pointer-events: auto; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
-  .date-inputs { display: flex; gap: 10px; margin-top: 10px; }
+  .date-inputs { display: flex; gap: 10px; margin-top: 10px; max-width: 400px; }
   .date-inputs input[type=date] { flex: 1; padding: 8px; border-radius: 6px; border: 1px solid #ccc; min-width: 0; }
 
-  .submitter-filter { flex: 1; min-width: 220px; }
+  .controls-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+
+  .search-bar { flex: 1.3; min-width: 200px; }
+  .search-bar label { font-size: 0.85em; color: #777; display: block; margin-bottom: 4px; }
+  .search-bar input { width: 100%; padding: 9px 10px; border-radius: 8px; border: 1px solid #ccc; }
+
+  .submitter-filter { flex: 1; min-width: 200px; }
   .submitter-filter label { font-size: 0.85em; color: #777; display: block; margin-bottom: 4px; }
   .submitter-filter .hint { font-size: 0.78em; color: #999; margin-bottom: 6px; line-height: 1.4; }
   .submitter-filter input { width: 100%; padding: 9px 10px; border-radius: 8px; border: 1px solid #ccc; }
   .submitter-filter .status { font-size: 0.78em; color: var(--accent); margin-top: 4px; min-height: 1em; }
 
-  .tag-dropdown { position: relative; min-width: 200px; flex: 1; }
-  .tag-dropdown-btn { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #ccc; background: white; cursor: pointer; text-align: left; }
-  .tag-dropdown-panel { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; margin-top: 4px; padding: 10px; z-index: 20; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-height: 260px; overflow-y: auto; }
-  .tag-dropdown-panel label { display: block; padding: 6px 0; font-size: 0.9em; cursor: pointer; }
-  .tag-dropdown-panel hr { margin: 6px 0; border: none; border-top: 1px solid #eee; }
+  .tag-dropdown, .source-dropdown { position: relative; min-width: 180px; flex: 1; }
+  .tag-dropdown label, .source-dropdown label { font-size: 0.85em; color: #777; display: block; margin-bottom: 4px; }
+  .tag-dropdown-btn, .source-dropdown-btn { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #ccc; background: white; cursor: pointer; text-align: left; }
+  .tag-dropdown-panel, .source-dropdown-panel { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; margin-top: 4px; padding: 10px; z-index: 20; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-height: 260px; overflow-y: auto; }
+  .tag-dropdown-panel label, .source-dropdown-panel label { display: block; padding: 6px 0; font-size: 0.9em; cursor: pointer; }
+  .tag-dropdown-panel hr, .source-dropdown-panel hr { margin: 6px 0; border: none; border-top: 1px solid #eee; }
 
   .list-intro-text { max-width: 700px; margin: 28px auto 12px; padding: 0 16px; text-align: center; line-height: 1.5; }
   .add-event-btn { display: block; margin: 0 auto 24px; background: var(--accent); color: white; border: none; padding: 14px 24px; border-radius: 24px; font-size: 1em; cursor: pointer; text-decoration: none; width: fit-content; }
@@ -77,6 +84,13 @@
   .map-popup-title { font-weight: bold; margin-bottom: 4px; }
   .map-popup-tags { margin: 6px 0; }
   .map-popup-link { color: var(--accent); font-size: 0.85em; cursor: pointer; text-decoration: underline; }
+
+  #backToTop {
+    position: fixed; bottom: 24px; right: 24px; background: var(--accent); color: white;
+    border: none; border-radius: 50%; width: 48px; height: 48px; font-size: 1.3em;
+    cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2); display: none; z-index: 50;
+  }
+  #backToTop.visible { display: block; }
 </style>
 </head>
 <body>
@@ -99,7 +113,7 @@
   <div class="widget-box"><div id="map"></div></div>
 </div>
 
-<div class="controls">
+<div class="controls-outer">
   <div class="date-control">
     <label>Date range</label>
     <div class="dual-slider">
@@ -114,20 +128,37 @@
     </div>
   </div>
 
-  <div class="submitter-filter">
-    <label>My events</label>
-    <div class="hint" id="submitterHint"></div>
-    <input type="email" id="submitterInput" placeholder="you@example.com">
-    <div class="status" id="submitterStatus"></div>
-  </div>
+  <div class="controls-row">
+    <div class="search-bar">
+      <label>Search</label>
+      <input type="text" id="searchInput" placeholder="Search titles, descriptions, venues...">
+    </div>
 
-  <div class="tag-dropdown">
-    <label style="font-size:0.85em; color:#777; display:block; margin-bottom:4px;">Tags</label>
-    <button type="button" class="tag-dropdown-btn" id="tagDropdownBtn">All tags ▾</button>
-    <div class="tag-dropdown-panel" id="tagDropdownPanel" style="display:none;">
-      <label><input type="checkbox" id="tagSelectAll" checked> Select All</label>
-      <hr>
-      <div id="tagCheckboxList"></div>
+    <div class="submitter-filter">
+      <label>My events</label>
+      <div class="hint" id="submitterHint"></div>
+      <input type="email" id="submitterInput" placeholder="you@example.com">
+      <div class="status" id="submitterStatus"></div>
+    </div>
+
+    <div class="tag-dropdown">
+      <label>Tags</label>
+      <button type="button" class="tag-dropdown-btn" id="tagDropdownBtn">All tags ▾</button>
+      <div class="tag-dropdown-panel" id="tagDropdownPanel" style="display:none;">
+        <label><input type="checkbox" id="tagSelectAll" checked> Select All</label>
+        <hr>
+        <div id="tagCheckboxList"></div>
+      </div>
+    </div>
+
+    <div class="source-dropdown">
+      <label>Sources</label>
+      <button type="button" class="source-dropdown-btn" id="sourceDropdownBtn">All sources ▾</button>
+      <div class="source-dropdown-panel" id="sourceDropdownPanel" style="display:none;">
+        <label><input type="checkbox" id="sourceSelectAll" checked> Select All</label>
+        <hr>
+        <div id="sourceCheckboxList"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -136,12 +167,15 @@
 <a class="add-event-btn" href="submit.html">+ Add Your Event</a>
 <div id="eventList">Loading events...</div>
 
+<button id="backToTop" title="Back to top">↑</button>
+
 <script>
 const API_BASE = 'https://script.google.com/macros/s/AKfycbzxAcDnWOGeSvekDVOpi8lCOcp5mWD44O9ibQo-sifvJtQrVo6MIW-DEvwev5mKk4Uh/exec';
 
 let allEvents = [];
 let map, markers = [], sharedInfoWindow;
 let allTags = [];
+let allSources = [];
 let minDateStr, maxDateStr;
 let calViewYear, calViewMonth, calSelectedDate = null;
 let submitterFilterIds = null;
@@ -185,9 +219,9 @@ jsonp(API_BASE + '?api=config', function(cfg) {
 
 // --- Map ---
 function initGoogleMap() {
-  const serviceAreaBounds = { north: 42.7, south: 39.6, west: -76.0, east: -71.5 }; // NY State, NJ, CT, Philly area
+  const serviceAreaBounds = { north: 42.7, south: 39.6, west: -76.0, east: -71.5 };
   map = new google.maps.Map(document.getElementById('map'), {
-    center: { lat: 40.7128, lng: -74.0060 }, // defaults to NYC on load
+    center: { lat: 40.7128, lng: -74.0060 },
     zoom: 11,
     minZoom: 6,
     restriction: { latLngBounds: serviceAreaBounds, strictBounds: false },
@@ -237,15 +271,69 @@ function updateTagButtonLabel() {
 }
 document.getElementById('tagDropdownBtn').addEventListener('click', function(e) {
   e.stopPropagation();
+  document.getElementById('sourceDropdownPanel').style.display = 'none';
   const panel = document.getElementById('tagDropdownPanel');
   panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
 });
-document.addEventListener('click', function(e) {
-  const dropdown = document.querySelector('.tag-dropdown');
-  if (!dropdown.contains(e.target)) document.getElementById('tagDropdownPanel').style.display = 'none';
-});
 function getSelectedTags() {
   return Array.from(document.querySelectorAll('.tag-cb')).filter(cb => cb.checked).map(cb => cb.value);
+}
+
+// --- Sources ---
+function setupSourceDropdown() {
+  const sources = [...new Set(allEvents.map(ev => ev.sourceName).filter(Boolean))].sort();
+  allSources = sources;
+  const list = document.getElementById('sourceCheckboxList');
+  list.innerHTML = sources.map(s =>
+    `<label><input type="checkbox" class="source-cb" value="${s}" checked> ${s}</label>`
+  ).join('');
+  document.querySelectorAll('.source-cb').forEach(cb => cb.addEventListener('change', onSourceCheckboxChange));
+  document.getElementById('sourceSelectAll').addEventListener('change', function() {
+    document.querySelectorAll('.source-cb').forEach(cb => cb.checked = this.checked);
+    onSourceCheckboxChange();
+  });
+  updateSourceButtonLabel();
+}
+function onSourceCheckboxChange() {
+  const boxes = document.querySelectorAll('.source-cb');
+  const checkedCount = Array.from(boxes).filter(cb => cb.checked).length;
+  document.getElementById('sourceSelectAll').checked = checkedCount === boxes.length;
+  updateSourceButtonLabel();
+  updateDateSliderBounds();
+  renderAll();
+}
+function updateSourceButtonLabel() {
+  const boxes = Array.from(document.querySelectorAll('.source-cb'));
+  const checked = boxes.filter(cb => cb.checked);
+  const btn = document.getElementById('sourceDropdownBtn');
+  if (checked.length === boxes.length) btn.textContent = 'All sources ▾';
+  else if (checked.length === 0) btn.textContent = 'No sources selected ▾';
+  else btn.textContent = checked.length + ' source' + (checked.length > 1 ? 's' : '') + ' selected ▾';
+}
+document.getElementById('sourceDropdownBtn').addEventListener('click', function(e) {
+  e.stopPropagation();
+  document.getElementById('tagDropdownPanel').style.display = 'none';
+  const panel = document.getElementById('sourceDropdownPanel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+});
+function getSelectedSources() {
+  return Array.from(document.querySelectorAll('.source-cb')).filter(cb => cb.checked).map(cb => cb.value);
+}
+
+document.addEventListener('click', function(e) {
+  if (!document.querySelector('.tag-dropdown').contains(e.target)) document.getElementById('tagDropdownPanel').style.display = 'none';
+  if (!document.querySelector('.source-dropdown').contains(e.target)) document.getElementById('sourceDropdownPanel').style.display = 'none';
+});
+
+// --- Search ---
+document.getElementById('searchInput').addEventListener('input', renderAll);
+function getSearchQuery() {
+  return document.getElementById('searchInput').value.trim().toLowerCase();
+}
+function matchesSearch(ev, query) {
+  if (!query) return true;
+  const haystack = [ev.title, ev.description, ev.venue, ev.address, ev.sourceName, (ev.tags||[]).join(' ')].join(' ').toLowerCase();
+  return haystack.includes(query);
 }
 
 // --- Submitter filter ---
@@ -272,6 +360,7 @@ jsonp(API_BASE + '?api=events', function(events) {
     return;
   }
   allEvents = events;
+  setupSourceDropdown();
   setupDateRange();
   setupCalendar();
   renderAll();
@@ -328,6 +417,44 @@ function setupDateRange() {
     updateSliderFill(); renderAll();
   });
 }
+
+// Recalculates slider bounds when the source selection narrows/widens, clamping the current
+// position into the new range rather than resetting it.
+function updateDateSliderBounds() {
+  const selectedSources = getSelectedSources();
+  const allSourcesSelected = selectedSources.length === allSources.length;
+  const relevant = allSourcesSelected ? allEvents : allEvents.filter(ev => selectedSources.includes(ev.sourceName));
+  const dates = relevant.map(ev => ev.date).filter(Boolean).sort();
+  if (dates.length === 0) return;
+
+  const startInput = document.getElementById('startDateInput');
+  const endInput = document.getElementById('endDateInput');
+  const prevStart = startInput.value;
+  const prevEnd = endInput.value;
+
+  const newMin = dates[0];
+  const newMax = dates[dates.length - 1];
+  const totalDays = dateDiff_(newMin, newMax) || 1;
+
+  minDateStr = newMin;
+  maxDateStr = newMax;
+
+  const startSlider = document.getElementById('startSlider');
+  const endSlider = document.getElementById('endSlider');
+  [startSlider, endSlider].forEach(s => { s.min = 0; s.max = totalDays; });
+  startInput.min = endInput.min = newMin;
+  startInput.max = endInput.max = newMax;
+
+  const clampedStart = prevStart && prevStart >= newMin && prevStart <= newMax ? prevStart : newMin;
+  const clampedEnd = prevEnd && prevEnd >= newMin && prevEnd <= newMax ? prevEnd : newMax;
+
+  startInput.value = clampedStart;
+  endInput.value = clampedEnd;
+  startSlider.value = dateToOffset_(clampedStart);
+  endSlider.value = dateToOffset_(clampedEnd);
+  updateSliderFill();
+}
+
 function updateSliderFill() {
   const startSlider = document.getElementById('startSlider');
   const endSlider = document.getElementById('endSlider');
@@ -412,14 +539,19 @@ function getFilteredEvents() {
   const startInput = document.getElementById('startDateInput');
   const endInput = document.getElementById('endDateInput');
   const selectedTags = getSelectedTags();
-  const allChecked = selectedTags.length === allTags.length;
+  const allTagsChecked = selectedTags.length === allTags.length;
+  const selectedSources = getSelectedSources();
+  const allSourcesChecked = selectedSources.length === allSources.length;
+  const query = getSearchQuery();
 
   return allEvents.filter(ev => {
     if (startInput.value && endInput.value) {
       if (ev.date < startInput.value || ev.date > endInput.value) return false;
     }
-    if (!allChecked && !ev.tags.some(t => selectedTags.includes(t))) return false;
+    if (!allTagsChecked && !ev.tags.some(t => selectedTags.includes(t))) return false;
+    if (!allSourcesChecked && !selectedSources.includes(ev.sourceName)) return false;
     if (submitterFilterIds !== null && !submitterFilterIds.includes(ev.id)) return false;
+    if (!matchesSearch(ev, query)) return false;
     return true;
   }).sort((a, b) => (a.date + a.startTime).localeCompare(b.date + b.startTime));
 }
@@ -431,7 +563,7 @@ function renderMap(events) {
   events.forEach(ev => {
     if (!ev.lat || !ev.lng) return;
     const marker = new google.maps.Marker({ position: { lat: parseFloat(ev.lat), lng: parseFloat(ev.lng) }, map: map, title: ev.title });
-   marker.addListener('click', function() {
+    marker.addListener('click', function() {
       const tagsHtml = ev.tags.map(t => `<span class="tag-chip">${t}</span>`).join('');
       const content = `
         <div style="max-width:220px;">
@@ -465,7 +597,6 @@ function vote(eventId, direction, btn) {
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify({ api: 'vote', eventId: eventId, direction: direction })
   }).then(function() {
-    // optimistic update — no-cors means we can't read the real response
     const ev = allEvents.find(e => e.id === eventId);
     if (ev) { if (direction === 'up') ev.upvotes++; else ev.downvotes++; }
     renderAll();
@@ -498,6 +629,15 @@ function renderAll() {
   renderMap(filtered);
   if (typeof calViewYear !== 'undefined') renderCalendar();
 }
+
+// --- Back to top ---
+const backToTopBtn = document.getElementById('backToTop');
+window.addEventListener('scroll', function() {
+  backToTopBtn.classList.toggle('visible', window.scrollY > 400);
+});
+backToTopBtn.addEventListener('click', function() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
 </script>
 </body>
 </html>

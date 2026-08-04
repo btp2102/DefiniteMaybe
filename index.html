@@ -418,40 +418,29 @@ function setupDateRange() {
   });
 }
 
-// Recalculates slider bounds when the source selection narrows/widens, clamping the current
-// position into the new range rather than resetting it.
+// The slider track's scale is fixed (set once in setupDateRange, based on ALL events) and never
+// changes here. Narrowing sources only moves the handle positions to highlight that source's
+// actual date range within the full, unchanging track.
 function updateDateSliderBounds() {
   const selectedSources = getSelectedSources();
   const allSourcesSelected = selectedSources.length === allSources.length;
   const relevant = allSourcesSelected ? allEvents : allEvents.filter(ev => selectedSources.includes(ev.sourceName));
   const dates = relevant.map(ev => ev.date).filter(Boolean).sort();
-  if (dates.length === 0) return;
 
-  const startInput = document.getElementById('startDateInput');
-  const endInput = document.getElementById('endDateInput');
-  const prevStart = startInput.value;
-  const prevEnd = endInput.value;
+  if (dates.length === 0) return; // no events for this source combo — leave handles where they are
 
-  const newMin = dates[0];
-  const newMax = dates[dates.length - 1];
-  const totalDays = dateDiff_(newMin, newMax) || 1;
-
-  minDateStr = newMin;
-  maxDateStr = newMax;
+  const subMin = dates[0];
+  const subMax = dates[dates.length - 1];
 
   const startSlider = document.getElementById('startSlider');
   const endSlider = document.getElementById('endSlider');
-  [startSlider, endSlider].forEach(s => { s.min = 0; s.max = totalDays; });
-  startInput.min = endInput.min = newMin;
-  startInput.max = endInput.max = newMax;
+  const startInput = document.getElementById('startDateInput');
+  const endInput = document.getElementById('endDateInput');
 
-  const clampedStart = prevStart && prevStart >= newMin && prevStart <= newMax ? prevStart : newMin;
-  const clampedEnd = prevEnd && prevEnd >= newMin && prevEnd <= newMax ? prevEnd : newMax;
-
-  startInput.value = clampedStart;
-  endInput.value = clampedEnd;
-  startSlider.value = dateToOffset_(clampedStart);
-  endSlider.value = dateToOffset_(clampedEnd);
+  startInput.value = subMin;
+  endInput.value = subMax;
+  startSlider.value = dateToOffset_(subMin);
+  endSlider.value = dateToOffset_(subMax);
   updateSliderFill();
 }
 

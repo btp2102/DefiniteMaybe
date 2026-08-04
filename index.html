@@ -418,19 +418,25 @@ function setupDateRange() {
   });
 }
 
-// The slider track's scale is fixed (set once in setupDateRange, based on ALL events) and never
-// changes here. Narrowing sources only moves the handle positions to highlight that source's
-// actual date range within the full, unchanging track.
 function updateDateSliderBounds() {
   const selectedSources = getSelectedSources();
   const allSourcesSelected = selectedSources.length === allSources.length;
   const relevant = allSourcesSelected ? allEvents : allEvents.filter(ev => selectedSources.includes(ev.sourceName));
   const dates = relevant.map(ev => ev.date).filter(Boolean).sort();
 
-  if (dates.length === 0) return; // no events for this source combo — leave handles where they are
+  if (dates.length === 0) return;
 
-  const subMin = dates[0];
-  const subMax = dates[dates.length - 1];
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const todayStr = today.toISOString().slice(0, 10);
+
+  const subEarliest = dates[0];
+  const subLatest = dates[dates.length - 1];
+
+  // Apply the same "default to today" rule as on initial load: don't show past events
+  // by default, but still allow the earliest possible start if everything's already in the future.
+  const subMin = subEarliest < todayStr ? (todayStr <= subLatest ? todayStr : subEarliest) : subEarliest;
+  const subMax = subLatest;
 
   const startSlider = document.getElementById('startSlider');
   const endSlider = document.getElementById('endSlider');

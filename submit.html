@@ -13,11 +13,30 @@
   button { margin-top: 20px; width: 100%; background: #d4622a; color: white; border: none; padding: 14px; border-radius: 24px; font-size: 1em; }
   #successMsg, #errorMsg { text-align: center; margin-top: 12px; display: none; }
   #successMsg { color: green; } #errorMsg { color: red; }
+
+  .url-extract-box { background: #fdeee4; border-radius: 8px; padding: 14px; margin-bottom: 6px; }
+  .url-extract-box label { margin-top: 0; }
+  .url-extract-row { display: flex; gap: 8px; margin-top: 6px; }
+  .url-extract-row input { flex: 1; margin-top: 0; }
+  .url-extract-row button { margin-top: 0; width: auto; padding: 10px 16px; white-space: nowrap; }
+  .url-extract-status { font-size: 0.85em; color: #a05a2c; margin-top: 6px; min-height: 1.2em; }
+  .form-divider { text-align: center; color: #999; font-size: 0.85em; margin: 16px 0 4px; }
 </style>
 </head>
 <body>
 <div class="form-wrap">
   <h1>Add Your Event</h1>
+
+  <div class="url-extract-box">
+    <label>Have a link? Paste it to auto-fill the form</label>
+    <div class="url-extract-row">
+      <input type="url" id="urlExtractInput" placeholder="https://...">
+      <button type="button" id="urlExtractBtn">Extract</button>
+    </div>
+    <div class="url-extract-status" id="urlExtractStatus"></div>
+  </div>
+  <div class="form-divider">— review and edit below, then submit —</div>
+
   <form id="eventForm">
     <label>Event Name *</label><input type="text" name="title" required>
     <label>Date *</label><input type="date" name="date" required>
@@ -38,6 +57,44 @@
 </div>
 <script>
 const API_BASE = 'https://script.google.com/macros/s/AKfycbzxAcDnWOGeSvekDVOpi8lCOcp5mWD44O9ibQo-sifvJtQrVo6MIW-DEvwev5mKk4Uh/exec';
+
+document.getElementById('urlExtractBtn').addEventListener('click', function() {
+  const url = document.getElementById('urlExtractInput').value.trim();
+  const statusEl = document.getElementById('urlExtractStatus');
+  const btn = this;
+  if (!url) { statusEl.textContent = 'Paste a link first.'; return; }
+
+  statusEl.textContent = 'Reading the page…';
+  btn.disabled = true;
+
+  fetch(API_BASE, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ api: 'extractFromUrl', url: url })
+  }).then(function(r) { return r.json(); }).then(function(res) {
+    btn.disabled = false;
+    if (!res.success) {
+      statusEl.textContent = res.error || 'Could not extract details from that link.';
+      return;
+    }
+    const ev = res.event || {};
+    const form = document.getElementById('eventForm');
+    if (ev.title) form.title.value = ev.title;
+    if (ev.date) form.date.value = ev.date;
+    if (ev.start_time) form.startTime.value = ev.start_time;
+    if (ev.end_time) form.endTime.value = ev.end_time;
+    if (ev.venue) form.venue.value = ev.venue;
+    if (ev.address) form.address.value = ev.address;
+    if (ev.price) form.price.value = ev.price;
+    if (ev.description) form.description.value = ev.description;
+    form.sourceLink.value = url;
+    statusEl.textContent = '✓ Extracted — please check the fields below before submitting, some details may be missing or wrong.';
+  }).catch(function() {
+    btn.disabled = false;
+    statusEl.textContent = 'Something went wrong reading that link.';
+  });
+});
+
 document.getElementById('eventForm').addEventListener('submit', function(e) {
   e.preventDefault();
   const params = Object.fromEntries(new FormData(e.target).entries());

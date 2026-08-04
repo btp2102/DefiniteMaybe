@@ -185,12 +185,12 @@ jsonp(API_BASE + '?api=config', function(cfg) {
 
 // --- Map ---
 function initGoogleMap() {
-  const nycBounds = { north: 41.3, south: 40.45, west: -74.35, east: -73.4 };
+  const serviceAreaBounds = { north: 42.7, south: 39.6, west: -76.0, east: -71.5 }; // NY State, NJ, CT, Philly area
   map = new google.maps.Map(document.getElementById('map'), {
-    center: { lat: 40.7128, lng: -74.0060 },
+    center: { lat: 40.7128, lng: -74.0060 }, // defaults to NYC on load
     zoom: 11,
-    minZoom: 9,
-    restriction: { latLngBounds: nycBounds, strictBounds: false },
+    minZoom: 6,
+    restriction: { latLngBounds: serviceAreaBounds, strictBounds: false },
     mapTypeControl: false,
     streetViewControl: false
   });

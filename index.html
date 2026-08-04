@@ -19,7 +19,7 @@
     .tag-dropdown, .submitter-filter { width: 100%; }
   }
   .widget-box { background: var(--card-bg); border-radius: 12px; padding: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-  #map { height: 320px; border-radius: 8px; width: 100%; }
+  #map { height: 400px; border-radius: 8px; width: 100%; }
 
   #calendar { height: 320px; display: flex; flex-direction: column; }
   .cal-header { display: flex; justify-content: space-between; align-items: center; padding: 2px 4px 8px; }
@@ -431,17 +431,15 @@ function renderMap(events) {
   events.forEach(ev => {
     if (!ev.lat || !ev.lng) return;
     const marker = new google.maps.Marker({ position: { lat: parseFloat(ev.lat), lng: parseFloat(ev.lng) }, map: map, title: ev.title });
-    marker.addListener('click', function() {
+   marker.addListener('click', function() {
       const tagsHtml = ev.tags.map(t => `<span class="tag-chip">${t}</span>`).join('');
-      const content = `
-        <div style="max-width:220px;">
-          <div class="map-popup-title">${ev.title}</div>
-          <div style="font-size:0.85em; color:#777;">${formatDateDisplay(ev.date)}${ev.timeDisplay ? ' · ' + ev.timeDisplay : ''}</div>
-          <div class="map-popup-tags">${tagsHtml}</div>
-          <div class="map-popup-link" onclick="scrollToEvent('${ev.id}')">See full details ↓</div>
-        </div>`;
+      const content = `...`;
       sharedInfoWindow.setContent(content);
-      sharedInfoWindow.open(map, marker);
+      map.panTo(marker.getPosition());
+      setTimeout(function() {
+        map.panBy(0, -120);
+        sharedInfoWindow.open(map, marker);
+      }, 50);
     });
     markers.push(marker);
   });

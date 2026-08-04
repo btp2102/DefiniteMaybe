@@ -11,13 +11,24 @@
   header { text-align: center; padding: 24px 16px 12px; }
   header h1 { font-size: 2.2em; margin: 0; color: var(--accent); }
   .intro-text { max-width: 700px; margin: 0 auto 20px; padding: 0 16px; line-height: 1.5; text-align: center; }
-  .widgets { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 1000px; margin: 0 auto; padding: 0 16px; }
-  @media (max-width: 700px) {
-    .widgets { grid-template-columns: 1fr; }
-    header h1 { font-size: 1.8em; }
-    .controls-row { flex-direction: column; }
-    .tag-dropdown, .source-dropdown, .submitter-filter, .search-bar { width: 100%; }
-  }
+
+  .section { max-width: 1000px; margin: 0 auto 20px; padding: 0 16px; }
+
+  /* Search + Tags row */
+  .search-tags-row { display: flex; gap: 20px; flex-wrap: wrap; }
+  .search-box { flex: 1; min-width: 220px; }
+  .search-box label { font-size: 0.85em; color: #777; display: block; margin-bottom: 6px; }
+  .search-box input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; }
+
+  .tags-box { flex: 2; min-width: 300px; }
+  .tags-box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .tags-box-header label { font-size: 0.85em; color: #777; }
+  .tags-box-header a { font-size: 0.8em; color: var(--accent); cursor: pointer; text-decoration: underline; }
+  .tag-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px 12px; background: white; border: 1px solid #ccc; border-radius: 8px; padding: 10px; }
+  .tag-grid label { font-size: 0.88em; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Widgets: calendar + map */
+  .widgets { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .widget-box { background: var(--card-bg); border-radius: 12px; padding: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); display: flex; flex-direction: column; }
   #map { height: 400px; border-radius: 8px; width: 100%; }
 
@@ -39,8 +50,9 @@
   .cal-day-detail.visible { display: block; }
   .cal-day-detail-item { cursor: pointer; padding: 3px 0; text-decoration: underline; }
 
-  .controls-outer { max-width: 1000px; margin: 20px auto; padding: 0 16px; }
-  .date-control { margin-bottom: 16px; }
+  /* Date range + Travel time row */
+  .date-travel-row { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
+  .date-control { flex: 1; min-width: 260px; }
   .date-control label { font-size: 0.85em; color: #777; display: block; margin-bottom: 6px; }
   .dual-slider { position: relative; height: 28px; }
   .slider-base-track { position: absolute; top: 50%; left: 0; right: 0; height: 4px; background: #e0d8cf; border-radius: 2px; transform: translateY(-50%); }
@@ -51,37 +63,36 @@
   .date-inputs { display: flex; gap: 10px; margin-top: 10px; max-width: 400px; }
   .date-inputs input[type=date] { flex: 1; padding: 8px; border-radius: 6px; border: 1px solid #ccc; min-width: 0; }
 
-  .controls-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
-  .controls-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+  .travel-control { flex: 1.2; min-width: 320px; }
+  .travel-control label { font-size: 0.85em; color: #777; display: block; margin-bottom: 6px; }
+  .travel-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .travel-row input[type=text] { flex: 2; min-width: 180px; padding: 9px 10px; border-radius: 8px; border: 1px solid #ccc; }
+  .travel-row select { padding: 9px 10px; border-radius: 8px; border: 1px solid #ccc; }
+  .travel-row input[type=number] { width: 90px; padding: 9px 10px; border-radius: 8px; border: 1px solid #ccc; }
+  .travel-row button { padding: 9px 14px; border-radius: 8px; border: none; background: var(--accent); color: white; cursor: pointer; }
+  .travel-row #travelClearBtn { background: #999; }
+  .travel-status { font-size: 0.8em; color: var(--accent); margin-top: 6px; min-height: 1em; }
 
-.travel-row { display: flex; flex-wrap: wrap; gap: 10px; }
-.travel-row input[type=text] { flex: 2; min-width: 220px; padding: 9px 10px; border-radius: 8px; border: 1px solid #ccc; }
-.travel-row select { padding: 9px 10px; border-radius: 8px; border: 1px solid #ccc; }
-.travel-row input[type=number] { width: 110px; padding: 9px 10px; border-radius: 8px; border: 1px solid #ccc; }
-.travel-row button { padding: 9px 16px; border-radius: 8px; border: none; background: var(--accent); color: white; cursor: pointer; }
-.travel-row #travelClearBtn { background: #999; }
-.travel-status { font-size: 0.8em; color: var(--accent); margin-top: 6px; min-height: 1em; }
-
-  .search-bar { flex: 1.3; min-width: 200px; }
-  .search-bar label { font-size: 0.85em; color: #777; display: block; margin-bottom: 4px; }
-  .search-bar input { width: 100%; padding: 9px 10px; border-radius: 8px; border: 1px solid #ccc; }
-
-  .submitter-filter { flex: 1; min-width: 200px; }
+  /* Bottom row: My events + CTA + Sources */
+  .bottom-row { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+  .submitter-filter { flex: 1; min-width: 220px; }
   .submitter-filter label { font-size: 0.85em; color: #777; display: block; margin-bottom: 4px; }
   .submitter-filter .hint { font-size: 0.78em; color: #999; margin-bottom: 6px; line-height: 1.4; }
   .submitter-filter input { width: 100%; padding: 9px 10px; border-radius: 8px; border: 1px solid #ccc; }
   .submitter-filter .status { font-size: 0.78em; color: var(--accent); margin-top: 4px; min-height: 1em; }
 
-  .tag-dropdown, .source-dropdown { position: relative; min-width: 180px; flex: 1; }
-  .tag-dropdown label, .source-dropdown label { font-size: 0.85em; color: #777; display: block; margin-bottom: 4px; }
-  .tag-dropdown-btn, .source-dropdown-btn { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #ccc; background: white; cursor: pointer; text-align: left; }
-  .tag-dropdown-panel, .source-dropdown-panel { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; margin-top: 4px; padding: 10px; z-index: 20; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-height: 260px; overflow-y: auto; }
-  .tag-dropdown-panel label, .source-dropdown-panel label { display: block; padding: 6px 0; font-size: 0.9em; cursor: pointer; }
-  .tag-dropdown-panel hr, .source-dropdown-panel hr { margin: 6px 0; border: none; border-top: 1px solid #eee; }
+  .cta-box { flex: 1; min-width: 240px; text-align: center; }
+  .cta-box .list-intro-text { line-height: 1.5; margin-bottom: 14px; font-size: 0.95em; }
+  .add-event-btn { display: inline-block; background: var(--accent); color: white; border: none; padding: 14px 24px; border-radius: 24px; font-size: 1em; cursor: pointer; text-decoration: none; }
 
-  .list-intro-text { max-width: 700px; margin: 28px auto 12px; padding: 0 16px; text-align: center; line-height: 1.5; }
-  .add-event-btn { display: block; margin: 0 auto 24px; background: var(--accent); color: white; border: none; padding: 14px 24px; border-radius: 24px; font-size: 1em; cursor: pointer; text-decoration: none; width: fit-content; }
-  #eventList { max-width: 800px; margin: 0 auto; padding: 0 16px 60px; }
+  .source-dropdown { position: relative; flex: 1; min-width: 200px; }
+  .source-dropdown label { font-size: 0.85em; color: #777; display: block; margin-bottom: 4px; }
+  .source-dropdown-btn { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #ccc; background: white; cursor: pointer; text-align: left; }
+  .source-dropdown-panel { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; margin-top: 4px; padding: 10px; z-index: 20; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-height: 260px; overflow-y: auto; }
+  .source-dropdown-panel label { display: block; padding: 6px 0; font-size: 0.9em; cursor: pointer; }
+  .source-dropdown-panel hr { margin: 6px 0; border: none; border-top: 1px solid #eee; }
+
+  #eventList { max-width: 800px; margin: 30px auto 0; padding: 0 16px 60px; }
   .event-card { background: var(--card-bg); border-radius: 10px; padding: 16px; margin-bottom: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); scroll-margin-top: 20px; }
   .event-card h3 { margin: 0 0 4px; }
   .event-meta { color: #777; font-size: 0.9em; margin-bottom: 8px; }
@@ -100,6 +111,12 @@
     cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2); display: none; z-index: 50;
   }
   #backToTop.visible { display: block; }
+
+  @media (max-width: 700px) {
+    .widgets { grid-template-columns: 1fr; }
+    header h1 { font-size: 1.8em; }
+    .search-tags-row, .date-travel-row, .bottom-row { flex-direction: column; }
+  }
 </style>
 </head>
 <body>
@@ -107,7 +124,21 @@
 <header><h1 id="siteTitle">Definite Maybe</h1></header>
 <div class="intro-text" id="introText">Loading...</div>
 
-<div class="widgets">
+<div class="section search-tags-row">
+  <div class="search-box">
+    <label>Search</label>
+    <input type="text" id="searchInput" placeholder="Search titles, descriptions, venues...">
+  </div>
+  <div class="tags-box">
+    <div class="tags-box-header">
+      <label>Tags</label>
+      <a id="tagSelectAllLink">Select All / None</a>
+    </div>
+    <div class="tag-grid" id="tagCheckboxGrid"></div>
+  </div>
+</div>
+
+<div class="section widgets">
   <div class="widget-box">
     <div id="calendar">
       <div class="cal-header">
@@ -122,7 +153,7 @@
   <div class="widget-box"><div id="map"></div></div>
 </div>
 
-<div class="controls-outer">
+<div class="section date-travel-row">
   <div class="date-control">
     <label>Date range</label>
     <div class="dual-slider">
@@ -137,59 +168,48 @@
     </div>
   </div>
 
-  <div class="controls-row">
-    <div class="search-bar">
-      <label>Search</label>
-      <input type="text" id="searchInput" placeholder="Search titles, descriptions, venues...">
+  <div class="travel-control">
+    <label>Travel time</label>
+    <div class="travel-row">
+      <input type="text" id="travelOriginInput" placeholder="Enter address, subway stop, or landmark...">
+      <select id="travelModeSelect">
+        <option value="TRANSIT">Transit</option>
+        <option value="WALKING">Walking</option>
+        <option value="BICYCLING">Biking</option>
+        <option value="DRIVING">Driving</option>
+      </select>
+      <input type="number" id="travelMinutesInput" placeholder="Max min" min="1" value="30">
+      <button id="travelApplyBtn">Apply</button>
+      <button id="travelClearBtn" style="display:none;">Clear</button>
     </div>
+    <div class="travel-status" id="travelStatus"></div>
+  </div>
+</div>
 
-    <div class="submitter-filter">
-      <label>My events</label>
-      <div class="hint" id="submitterHint"></div>
-      <input type="email" id="submitterInput" placeholder="you@example.com">
-      <div class="status" id="submitterStatus"></div>
-    </div>
+<div class="section bottom-row">
+  <div class="submitter-filter">
+    <label>My events</label>
+    <div class="hint" id="submitterHint"></div>
+    <input type="email" id="submitterInput" placeholder="you@example.com">
+    <div class="status" id="submitterStatus"></div>
+  </div>
 
-    <div class="tag-dropdown">
-      <label>Tags</label>
-      <button type="button" class="tag-dropdown-btn" id="tagDropdownBtn">All tags ▾</button>
-      <div class="tag-dropdown-panel" id="tagDropdownPanel" style="display:none;">
-        <label><input type="checkbox" id="tagSelectAll" checked> Select All</label>
-        <hr>
-        <div id="tagCheckboxList"></div>
-      </div>
-    </div>
+  <div class="cta-box">
+    <div class="list-intro-text" id="listIntroText"></div>
+    <a class="add-event-btn" href="submit.html">+ Add Your Event</a>
+  </div>
 
-    <div class="source-dropdown">
-      <label>Sources</label>
-      <button type="button" class="source-dropdown-btn" id="sourceDropdownBtn">All sources ▾</button>
-      <div class="source-dropdown-panel" id="sourceDropdownPanel" style="display:none;">
-        <label><input type="checkbox" id="sourceSelectAll" checked> Select All</label>
-        <hr>
-        <div id="sourceCheckboxList"></div>
-      </div>
+  <div class="source-dropdown">
+    <label>Sources</label>
+    <button type="button" class="source-dropdown-btn" id="sourceDropdownBtn">All sources ▾</button>
+    <div class="source-dropdown-panel" id="sourceDropdownPanel" style="display:none;">
+      <label><input type="checkbox" id="sourceSelectAll" checked> Select All</label>
+      <hr>
+      <div id="sourceCheckboxList"></div>
     </div>
   </div>
 </div>
-<div class="controls-outer">
-  <label style="font-size:0.85em; color:#777; display:block; margin-bottom:6px;">Travel time</label>
-  <div class="travel-row">
-    <input type="text" id="travelOriginInput" placeholder="Enter address, subway stop, or landmark...">
-    <select id="travelModeSelect">
-      <option value="TRANSIT">Transit</option>
-      <option value="WALKING">Walking</option>
-      <option value="BICYCLING">Biking</option>
-      <option value="DRIVING">Driving</option>
-    </select>
-    <input type="number" id="travelMinutesInput" placeholder="Max minutes" min="1" value="30">
-    <button id="travelApplyBtn">Apply</button>
-    <button id="travelClearBtn" style="display:none;">Clear</button>
-  </div>
-  <div class="travel-status" id="travelStatus"></div>
-</div>
-  
-<div class="list-intro-text" id="listIntroText"></div>
-<a class="add-event-btn" href="submit.html">+ Add Your Event</a>
+
 <div id="eventList">Loading events...</div>
 
 <button id="backToTop" title="Back to top">↑</button>
@@ -205,6 +225,9 @@ let minDateStr, maxDateStr;
 let calViewYear, calViewMonth, calSelectedDate = null;
 let submitterFilterIds = null;
 let submitterDebounce = null;
+let travelOriginPlace = null;
+let travelTimesById = {};
+let travelFilterActive = false;
 
 const WEEKDAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -263,15 +286,13 @@ function loadMapsScript(apiKey) {
   script.src = 'https://maps.googleapis.com/maps/api/js?key=' + apiKey + '&libraries=places&callback=initGoogleMap';
   document.head.appendChild(script);
 }
-let travelOriginPlace = null;
-let travelTimesById = {}; // eventId -> minutes, for the current origin+mode
-let travelFilterActive = false;
+jsonp(API_BASE + '?api=mapsKey', function(key) { loadMapsScript(key); });
 
+// --- Travel time ---
 function initTravelAutocomplete() {
   const input = document.getElementById('travelOriginInput');
   const autocomplete = new google.maps.places.Autocomplete(input, {
     fields: ['geometry', 'name'],
-    // Bias results toward the service area without hard-restricting, so a Philly landmark still works
     bounds: new google.maps.LatLngBounds({ lat: 39.6, lng: -76.0 }, { lat: 42.7, lng: -71.5 })
   });
   autocomplete.addListener('place_changed', function() {
@@ -294,7 +315,7 @@ document.getElementById('travelApplyBtn').addEventListener('click', function() {
 
   const eventsWithCoords = allEvents.filter(ev => ev.lat && ev.lng);
   const service = new google.maps.DistanceMatrixService();
-  const CHUNK_SIZE = 25; // Distance Matrix API limit per request
+  const CHUNK_SIZE = 25;
   let chunksRemaining = Math.ceil(eventsWithCoords.length / CHUNK_SIZE);
   if (chunksRemaining === 0) { statusEl.textContent = 'No mapped events to check.'; return; }
 
@@ -317,7 +338,7 @@ document.getElementById('travelApplyBtn').addEventListener('click', function() {
       if (status === 'OK' && response.rows[0]) {
         response.rows[0].elements.forEach(function(el, idx) {
           if (el.status === 'OK') {
-            travelTimesById[chunk[idx].id] = el.duration.value / 60; // seconds -> minutes
+            travelTimesById[chunk[idx].id] = el.duration.value / 60;
           }
         });
       }
@@ -340,49 +361,29 @@ document.getElementById('travelClearBtn').addEventListener('click', function() {
   document.getElementById('travelClearBtn').style.display = 'none';
   renderAll();
 });
-jsonp(API_BASE + '?api=mapsKey', function(key) { loadMapsScript(key); });
 
-// --- Tags ---
+// --- Tags (checkbox grid, always visible) ---
 jsonp(API_BASE + '?api=tags', function(tags) {
   allTags = tags;
-  const list = document.getElementById('tagCheckboxList');
-  list.innerHTML = tags.map(t =>
+  const grid = document.getElementById('tagCheckboxGrid');
+  grid.innerHTML = tags.map(t =>
     `<label><input type="checkbox" class="tag-cb" value="${t}" checked> ${t}</label>`
   ).join('');
-  document.querySelectorAll('.tag-cb').forEach(cb => cb.addEventListener('change', onTagCheckboxChange));
-  document.getElementById('tagSelectAll').addEventListener('change', function() {
-    document.querySelectorAll('.tag-cb').forEach(cb => cb.checked = this.checked);
-    onTagCheckboxChange();
-  });
-  updateTagButtonLabel();
+  document.querySelectorAll('.tag-cb').forEach(cb => cb.addEventListener('change', renderAll));
 });
 
-function onTagCheckboxChange() {
+document.getElementById('tagSelectAllLink').addEventListener('click', function() {
   const boxes = document.querySelectorAll('.tag-cb');
-  const checkedCount = Array.from(boxes).filter(cb => cb.checked).length;
-  document.getElementById('tagSelectAll').checked = checkedCount === boxes.length;
-  updateTagButtonLabel();
+  const anyUnchecked = Array.from(boxes).some(cb => !cb.checked);
+  boxes.forEach(cb => cb.checked = anyUnchecked); // if any unchecked, select all; else clear all
   renderAll();
-}
-function updateTagButtonLabel() {
-  const boxes = Array.from(document.querySelectorAll('.tag-cb'));
-  const checked = boxes.filter(cb => cb.checked);
-  const btn = document.getElementById('tagDropdownBtn');
-  if (checked.length === boxes.length) btn.textContent = 'All tags ▾';
-  else if (checked.length === 0) btn.textContent = 'No tags selected ▾';
-  else btn.textContent = checked.length + ' tag' + (checked.length > 1 ? 's' : '') + ' selected ▾';
-}
-document.getElementById('tagDropdownBtn').addEventListener('click', function(e) {
-  e.stopPropagation();
-  document.getElementById('sourceDropdownPanel').style.display = 'none';
-  const panel = document.getElementById('tagDropdownPanel');
-  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
 });
+
 function getSelectedTags() {
   return Array.from(document.querySelectorAll('.tag-cb')).filter(cb => cb.checked).map(cb => cb.value);
 }
 
-// --- Sources ---
+// --- Sources (dropdown, dynamically populated from sheet data) ---
 function setupSourceDropdown() {
   const sources = [...new Set(allEvents.map(ev => ev.sourceName).filter(Boolean))].sort();
   allSources = sources;
@@ -415,18 +416,15 @@ function updateSourceButtonLabel() {
 }
 document.getElementById('sourceDropdownBtn').addEventListener('click', function(e) {
   e.stopPropagation();
-  document.getElementById('tagDropdownPanel').style.display = 'none';
   const panel = document.getElementById('sourceDropdownPanel');
   panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+});
+document.addEventListener('click', function(e) {
+  if (!document.querySelector('.source-dropdown').contains(e.target)) document.getElementById('sourceDropdownPanel').style.display = 'none';
 });
 function getSelectedSources() {
   return Array.from(document.querySelectorAll('.source-cb')).filter(cb => cb.checked).map(cb => cb.value);
 }
-
-document.addEventListener('click', function(e) {
-  if (!document.querySelector('.tag-dropdown').contains(e.target)) document.getElementById('tagDropdownPanel').style.display = 'none';
-  if (!document.querySelector('.source-dropdown').contains(e.target)) document.getElementById('sourceDropdownPanel').style.display = 'none';
-});
 
 // --- Search ---
 document.getElementById('searchInput').addEventListener('input', renderAll);
@@ -535,9 +533,6 @@ function updateDateSliderBounds() {
 
   const subEarliest = dates[0];
   const subLatest = dates[dates.length - 1];
-
-  // Apply the same "default to today" rule as on initial load: don't show past events
-  // by default, but still allow the earliest possible start if everything's already in the future.
   const subMin = subEarliest < todayStr ? (todayStr <= subLatest ? todayStr : subEarliest) : subEarliest;
   const subMax = subLatest;
 

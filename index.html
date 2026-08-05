@@ -22,10 +22,10 @@
   .search-cta-row .add-event-btn { flex-shrink: 0; margin: 0; }
 
   /* Tags row (full width, matching calendar+map) */
-  .tags-box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-  .tags-box-header label { font-size: 0.85em; color: #777; }
-  .tags-box-header a { font-size: 0.8em; color: var(--accent); cursor: pointer; text-decoration: underline; }
-  .tag-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px 12px; background: white; border: 1px solid #ccc; border-radius: 8px; padding: 10px; }
+  .tags-box { background: white; border: 1px solid #ccc; border-radius: 8px; padding: 10px; }
+  .tag-select-all-row { text-align: right; margin-bottom: 8px; }
+  .tag-select-all-row a { font-size: 0.8em; color: var(--accent); cursor: pointer; text-decoration: underline; }
+  .tag-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px 12px; }
   .tag-grid label { font-size: 0.88em; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .tag-grid input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; }
 
@@ -128,18 +128,16 @@
 
 <div class="search-cta-row">
   <div class="search-box">
-    <label>Search</label>
     <input type="text" id="searchInput" placeholder="Search titles, descriptions, venues...">
   </div>
   <a class="add-event-btn" href="submit.html">+ Add Your Event</a>
 </div>
 
 <div class="section">
-  <div class="tags-box-header">
-    <label>Tags</label>
-    <a id="tagSelectAllLink">Select All / None</a>
+  <div class="tags-box">
+    <div class="tag-select-all-row"><a id="tagSelectAllLink">Select All / None</a></div>
+    <div class="tag-grid" id="tagCheckboxGrid"></div>
   </div>
-  <div class="tag-grid" id="tagCheckboxGrid"></div>
 </div>
 
 <div class="section widgets">
@@ -193,14 +191,12 @@
 
 <div class="section bottom-row">
   <div class="submitter-filter">
-    <label>My events</label>
     <div class="hint" id="submitterHint"></div>
     <input type="email" id="submitterInput" placeholder="you@example.com">
     <div class="status" id="submitterStatus"></div>
   </div>
 
   <div class="source-dropdown">
-    <label>Sources</label>
     <button type="button" class="source-dropdown-btn" id="sourceDropdownBtn">All sources ▾</button>
     <div class="source-dropdown-panel" id="sourceDropdownPanel" style="display:none;">
       <label><input type="checkbox" id="sourceSelectAll" checked> Select All</label>

@@ -14,18 +14,20 @@
 
   .section { max-width: 1000px; margin: 0 auto 20px; padding: 0 16px; }
 
-  /* Search + Tags row */
-  .search-tags-row { display: flex; gap: 20px; flex-wrap: wrap; }
+  /* Search + Add Event row (centered, wider than intro text, narrower than calendar+map) */
+  .search-cta-row { max-width: 850px; margin: 0 auto 20px; padding: 0 16px; display: flex; gap: 14px; align-items: flex-end; justify-content: center; }
   .search-box { flex: 1; min-width: 220px; }
   .search-box label { font-size: 0.85em; color: #777; display: block; margin-bottom: 6px; }
   .search-box input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; }
+  .search-cta-row .add-event-btn { flex-shrink: 0; margin: 0; }
 
-  .tags-box { flex: 2; min-width: 300px; }
+  /* Tags row (full width, matching calendar+map) */
   .tags-box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
   .tags-box-header label { font-size: 0.85em; color: #777; }
   .tags-box-header a { font-size: 0.8em; color: var(--accent); cursor: pointer; text-decoration: underline; }
   .tag-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px 12px; background: white; border: 1px solid #ccc; border-radius: 8px; padding: 10px; }
   .tag-grid label { font-size: 0.88em; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tag-grid input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; }
 
   /* Widgets: calendar + map */
   .widgets { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -69,6 +71,7 @@
   .travel-row input[type=text] { flex: 2; min-width: 180px; padding: 9px 10px; border-radius: 8px; border: 1px solid #ccc; }
   .travel-row select { padding: 9px 10px; border-radius: 8px; border: 1px solid #ccc; }
   .travel-row input[type=number] { width: 90px; padding: 9px 10px; border-radius: 8px; border: 1px solid #ccc; }
+  .travel-minutes-label { align-self: center; font-size: 0.9em; color: #777; white-space: nowrap; }
   .travel-row button { padding: 9px 14px; border-radius: 8px; border: none; background: var(--accent); color: white; cursor: pointer; }
   .travel-row #travelClearBtn { background: #999; }
   .travel-status { font-size: 0.8em; color: var(--accent); margin-top: 6px; min-height: 1em; }
@@ -81,8 +84,7 @@
   .submitter-filter input { width: 100%; padding: 9px 10px; border-radius: 8px; border: 1px solid #ccc; }
   .submitter-filter .status { font-size: 0.78em; color: var(--accent); margin-top: 4px; min-height: 1em; }
 
-  .cta-box { flex: 1; min-width: 240px; text-align: center; }
-  .cta-box .list-intro-text { line-height: 1.5; margin-bottom: 14px; font-size: 0.95em; }
+  .list-intro-text { max-width: 700px; margin: 8px auto 24px; padding: 0 16px; text-align: center; line-height: 1.5; }
   .add-event-btn { display: inline-block; background: var(--accent); color: white; border: none; padding: 14px 24px; border-radius: 24px; font-size: 1em; cursor: pointer; text-decoration: none; }
 
   .source-dropdown { position: relative; flex: 1; min-width: 200px; }
@@ -115,7 +117,7 @@
   @media (max-width: 700px) {
     .widgets { grid-template-columns: 1fr; }
     header h1 { font-size: 1.8em; }
-    .search-tags-row, .date-travel-row, .bottom-row { flex-direction: column; }
+    .search-cta-row, .date-travel-row, .bottom-row { flex-direction: column; }
   }
 </style>
 </head>
@@ -124,18 +126,20 @@
 <header><h1 id="siteTitle">Definite Maybe</h1></header>
 <div class="intro-text" id="introText">Loading...</div>
 
-<div class="section search-tags-row">
+<div class="search-cta-row">
   <div class="search-box">
     <label>Search</label>
     <input type="text" id="searchInput" placeholder="Search titles, descriptions, venues...">
   </div>
-  <div class="tags-box">
-    <div class="tags-box-header">
-      <label>Tags</label>
-      <a id="tagSelectAllLink">Select All / None</a>
-    </div>
-    <div class="tag-grid" id="tagCheckboxGrid"></div>
+  <a class="add-event-btn" href="submit.html">+ Add Your Event</a>
+</div>
+
+<div class="section">
+  <div class="tags-box-header">
+    <label>Tags</label>
+    <a id="tagSelectAllLink">Select All / None</a>
   </div>
+  <div class="tag-grid" id="tagCheckboxGrid"></div>
 </div>
 
 <div class="section widgets">
@@ -179,6 +183,7 @@
         <option value="DRIVING">Driving</option>
       </select>
       <input type="number" id="travelMinutesInput" placeholder="Max min" min="1" value="30">
+      <span class="travel-minutes-label">minutes</span>
       <button id="travelApplyBtn">Apply</button>
       <button id="travelClearBtn" style="display:none;">Clear</button>
     </div>
@@ -194,11 +199,6 @@
     <div class="status" id="submitterStatus"></div>
   </div>
 
-  <div class="cta-box">
-    <div class="list-intro-text" id="listIntroText"></div>
-    <a class="add-event-btn" href="submit.html">+ Add Your Event</a>
-  </div>
-
   <div class="source-dropdown">
     <label>Sources</label>
     <button type="button" class="source-dropdown-btn" id="sourceDropdownBtn">All sources ▾</button>
@@ -209,6 +209,8 @@
     </div>
   </div>
 </div>
+
+<div class="list-intro-text" id="listIntroText"></div>
 
 <div id="eventList">Loading events...</div>
 

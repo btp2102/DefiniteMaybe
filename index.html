@@ -32,6 +32,22 @@
   /* Widgets: calendar + map */
   .widgets { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .widget-box { background: var(--card-bg); border-radius: 12px; padding: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); display: flex; flex-direction: column; }
+
+  .attendance-filter { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; background: white; border: 1px solid #ccc; border-radius: 8px; padding: 10px 14px; }
+  .attendance-checks { display: flex; gap: 18px; flex-wrap: wrap; }
+  .attendance-checks label { font-size: 0.9em; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .attendance-checks input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; }
+  .attendance-warning { font-size: 0.85em; color: #c0392b; }
+
+  .map-wrap { position: relative; }
+  .map-grey-overlay {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(120,120,120,0.68); border-radius: 8px;
+    display: none; align-items: center; justify-content: center;
+    color: white; font-weight: bold; text-align: center; padding: 20px;
+    pointer-events: none;
+  }
+  .map-grey-overlay.visible { display: flex; pointer-events: auto; }
   #map { height: 400px; border-radius: 8px; width: 100%; }
 
   #calendar { flex: 1; display: flex; flex-direction: column; min-height: 0; }
@@ -140,6 +156,17 @@
   </div>
 </div>
 
+<div class="section">
+  <div class="attendance-filter">
+    <div class="attendance-checks">
+      <label><input type="checkbox" class="attendance-cb" value="In-Person" checked> In-Person</label>
+      <label><input type="checkbox" class="attendance-cb" value="Virtual" checked> Virtual</label>
+      <label><input type="checkbox" class="attendance-cb" value="Hybrid" checked> Hybrid</label>
+    </div>
+    <div class="attendance-warning" id="attendanceWarning"></div>
+  </div>
+</div>
+
 <div class="section widgets">
   <div class="widget-box">
     <div id="calendar">
@@ -152,7 +179,12 @@
       <div class="cal-day-detail" id="calDayDetail"></div>
     </div>
   </div>
-  <div class="widget-box"><div id="map"></div></div>
+  <div class="widget-box">
+    <div class="map-wrap">
+      <div id="map"></div>
+      <div class="map-grey-overlay" id="mapGreyOverlay"><span>Virtual events don't have a map location</span></div>
+    </div>
+  </div>
 </div>
 
 <div class="section date-travel-row">
@@ -625,6 +657,41 @@ function onCalendarDayClick(dateStr, events) {
     events.map(ev => `<div class="cal-day-detail-item" onclick="scrollToEvent('${ev.id}')">${ev.title}${ev.venue ? ' — ' + ev.venue : ''}</div>`).join('');
 }
 
+// --- Attendance type filter ---
+function getSelectedAttendanceTypes() {
+  return Array.from(document.querySelectorAll('.attendance-cb')).filter(cb => cb.checked).map(cb => cb.value);
+}
+
+document.querySelectorAll('.attendance-cb').forEach(cb => cb.addEventListener('change', onAttendanceChange));
+
+let attendanceWarningTimer = null;
+function onAttendanceChange() {
+  const warningEl = document.getElementById('attendanceWarning');
+  clearTimeout(attendanceWarningTimer);
+  warningEl.textContent = '';
+
+  if (getSelectedAttendanceTypes().length === 0) {
+    attendanceWarningTimer = setTimeout(function() {
+      if (getSelectedAttendanceTypes().length === 0) {
+        warningEl.textContent = 'Please select at least one to see any events';
+      }
+    }, 2000);
+  }
+
+  updateMapGreyOut();
+  renderAll();
+}
+
+function updateMapGreyOut() {
+  const overlay = document.getElementById('mapGreyOverlay');
+  if (!overlay) return;
+  const selected = getSelectedAttendanceTypes();
+  // Rule: Hybrid checked => map always stays on/functional, regardless of what else is checked.
+  // Grey out (and disable interaction on) the map ONLY when Virtual is the sole selected type.
+  const isVirtualOnly = selected.length === 1 && selected[0] === 'Virtual';
+  overlay.classList.toggle('visible', isVirtualOnly);
+}
+
 // --- Filtering / rendering ---
 function getFilteredEvents() {
   const startInput = document.getElementById('startDateInput');
@@ -633,6 +700,7 @@ function getFilteredEvents() {
   const allTagsChecked = selectedTags.length === allTags.length;
   const selectedSources = getSelectedSources();
   const allSourcesChecked = selectedSources.length === allSources.length;
+  const selectedAttendance = getSelectedAttendanceTypes();
   const query = getSearchQuery();
 
   return allEvents.filter(ev => {
@@ -641,6 +709,7 @@ function getFilteredEvents() {
     }
     if (!allTagsChecked && !ev.tags.some(t => selectedTags.includes(t))) return false;
     if (!allSourcesChecked && !selectedSources.includes(ev.sourceName)) return false;
+    if (!selectedAttendance.includes(ev.attendanceType)) return false;
     if (submitterFilterIds !== null && !submitterFilterIds.includes(ev.id)) return false;
     if (!matchesSearch(ev, query)) return false;
     if (travelFilterActive) {
